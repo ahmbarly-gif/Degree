@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بوابة درجات الطلاب</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; text-align: center; padding: 20px; margin: 0; color: #333; }
+    .header-img { width: 80px; margin-bottom: 10px; }
+    .card { background: white; max-width: 450px; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-top: 5px solid #005088; }
+    h2 { color: #005088; margin-top: 0; }
+    input { width: 90%; padding: 14px; margin: 15px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; text-align: center; transition: 0.3s; }
+    input:focus { border-color: #005088; outline: none; }
+    button { background: #005088; color: white; border: none; padding: 14px 25px; border-radius: 10px; cursor: pointer; width: 90%; font-size: 16px; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #003d66; }
+    
+    .result-box { display: none; margin-top: 25px; background: #f9f9f9; padding: 20px; border-radius: 15px; text-align: right; }
+    .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 10px 0; }
+    .row:last-child { border-bottom: none; }
+    .total-row { font-size: 20px; font-weight: bold; color: #005088; background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px; display: flex; justify-content: space-between; }
+    
+    .message { margin-top: 15px; padding: 15px; border-radius: 10px; font-weight: bold; text-align: center; font-size: 18px; }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    
+    #loading { display: none; margin-top: 15px; color: #005088; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" class="header-img" alt="شعار البوابة">
+    <h2>بوابة الطالب الأكاديمية</h2>
+      <h3>مادة Problem Solving </h3>
+    <p>أدخل رقم الطالب الخاص بك للاستعلام عن النتيجة</p>
+    
+    <input type="text" id="studentId" placeholder="رقم الطالب...">
+    <button onclick="searchInSheets()">استعلام عن النتيجة</button>
+    
+    <div id="loading">⏳ جاري البحث في قاعدة البيانات...</div>
+    
+    <div id="result" class="result-box">
+      <div class="row"><strong>اسم الطالب:</strong> <span id="res_name"></span></div>
+      <div class="row"><strong>درجة الجزئي (30):</strong> <span id="res_p"></span></div>
+      <div class="row"><strong>أعمال السنة (10):</strong> <span id="res_a"></span></div>
+      <div class="row"><strong>الامتحان النهائي (60):</strong> <span id="res_f"></span></div>
+      
+      <div class="total-row"><span>المجموع الكلي:</span> <span><span id="res_t"></span> / 100</span></div>
+      
+      <div id="res_msg" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    // رابط ملفك الذي أرسلته لي:
+    const mySheetLink = "https://docs.google.com/spreadsheets/d/1r5e80G1SY01WDehQ5Ao-2Jr21Le71mb-yxuDCVPua2k/edit?usp=drivesdk"; 
+
+    // الدالة الخارقة التي ستعالج البيانات وتتخطى الحظر
+    window.handleGoogleData = function(data) {
+        document.getElementById('loading').style.display = 'none';
+        
+        let idInput = document.getElementById('studentId').value.trim();
+        let rows = data.table.rows;
+        let found = false;
+
+        for(let i = 0; i < rows.length; i++) {
+          let row = rows[i].c;
+          // التحقق من رقم الطالب
+          if(row && row[0] && row[0].v != null && row[0].v.toString().trim() === idInput) {
+            found = true;
+            
+            let name = row[1] && row[1].v != null ? row[1].v : "غير مسجل";
+            let partial = row[2] && row[2].v != null ? row[2].v : 0;
+            let activities = row[3] && row[3].v != null ? row[3].v : 0;
+            let finalGrade = row[4] && row[4].v != null ? row[4].v : 0;
+            let total = row[5] && row[5].v != null ? row[5].v : (Number(partial) + Number(activities) + Number(finalGrade));
+
+            document.getElementById('res_name').innerText = name;
+            document.getElementById('res_p').innerText = partial;
+            document.getElementById('res_a').innerText = activities;
+            document.getElementById('res_f').innerText = finalGrade;
+            document.getElementById('res_t').innerText = total;
+
+            let msgBox = document.getElementById('res_msg');
+            if(Number(total) >= 50) {
+              msgBox.className = "message success";
+              msgBox.innerText = "مبروك النجاح.";
+            } else {
+              msgBox.className = "message fail";
+              msgBox.innerText = " لم توفق هذه المرة، نرجو لك التوفيق في المرات القادمة.";
+            }
+
+            document.getElementById('result').style.display = 'block';
+            break;
+          }
+        }
+
+        if(!found) {
+          alert('❌ الرقم (' + idInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
+        }
+    };
+
+    function searchInSheets() {
+      let idInput = document.getElementById('studentId').value;
+      if(!idInput) { alert("الرجاء إدخال رقم الطالب!"); return; }
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+
+      // استخراج كود الملف من الرابط
+      let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
+
+      // حذف السكربت القديم إن وجد لتحديث البحث
+      let oldScript = document.getElementById('google-jsonp');
+      if(oldScript) oldScript.remove();
+
+      // إنشاء سكربت جديد يتخطى حماية المتصفح (JSONP)
+      let script = document.createElement('script');
+      script.id = 'google-jsonp';
+      script.src = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json;responseHandler:handleGoogleData`;
+      
+      script.onerror = function() {
+        document.getElementById('loading').style.display = 'none';
+        alert("فشل الاتصال! تأكد أن هاتفك متصل بالإنترنت.");
+      };
+
+      document.body.appendChild(script);
+    }
+  </script>
+</body>
+</html>
