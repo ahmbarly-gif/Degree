@@ -7,96 +7,283 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; text-align: center; padding: 20px; margin: 0; color: #333; }
     .header-img { width: 80px; margin-bottom: 10px; }
-    .card { background: white; max-width: 450px; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-top: 5px solid #005088; }
-    h2 { color: #005088; margin-top: 0; }
-    input { width: 90%; padding: 14px; margin: 15px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; text-align: center; transition: 0.3s; }
+    .card { background: white; max-width: 450px; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-top: 5px solid #005088; position: relative; }
+    h2 { color: #005088; margin-top: 0; margin-bottom: 5px; }
+    h4 { color: #555; margin-top: 0; margin-bottom: 15px; font-weight: bold; }
+    h3 { background: #e3f2fd; padding: 10px; border-radius: 10px; color: #005088; display: inline-block; margin-top: 5px; }
+    
+    input { width: 90%; padding: 14px; margin: 15px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; text-align: center; direction: ltr !important; transition: 0.3s; }
     input:focus { border-color: #005088; outline: none; }
+    
     button { background: #005088; color: white; border: none; padding: 14px 25px; border-radius: 10px; cursor: pointer; width: 90%; font-size: 16px; font-weight: bold; transition: 0.3s; }
     button:hover { background: #003d66; }
+    button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed !important; }
     
+    /* تنسيق زر التعليمات والنافذة المنبثقة (Modal) */
+    .btn-info { background: #17a2b8; margin: 10px auto 20px; display: block; font-size: 15px; padding: 10px 15px; width: auto; border-radius: 8px; }
+    .btn-info:hover { background: #138496; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+    .modal-box { background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 15px; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-box h2 { font-size: 22px; border-bottom: 2px solid #eef2f3; padding-bottom: 10px; text-align: center; }
+    .help-content { font-size: 15px; line-height: 1.8; color: #444; max-height: 60vh; overflow-y: auto; margin-top: 15px; padding-left: 10px; }
+    .help-content ul { padding-right: 20px; }
+    .help-content li { margin-bottom: 10px; }
+    .btn-close-modal { background: #6c757d; margin-top: 20px; width: 100%; }
+    .btn-close-modal:hover { background: #5a6268; }
+
     .result-box { display: none; margin-top: 25px; background: #f9f9f9; padding: 20px; border-radius: 15px; text-align: right; }
-    .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 10px 0; }
+    .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 12px 0; align-items: flex-start; }
+    .row strong { white-space: nowrap; margin-left: 15px; }
+    .row span { text-align: left; word-break: break-word; line-height: 1.5; }
+    
+    .name-row { flex-direction: column; align-items: flex-start; }
+    .name-row span { margin-top: 8px; font-size: 18px; color: #005088; font-weight: bold; text-align: right !important; }
+    
+    .col-layout { flex-direction: column !important; align-items: flex-start !important; }
+    .col-layout span { margin-top: 8px; text-align: right !important; color: #d32f2f !important; font-weight: bold; background: #ffebee; padding: 4px 10px; border-radius: 5px; }
+    
     .row:last-child { border-bottom: none; }
-    .total-row { font-size: 20px; font-weight: bold; color: #005088; background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px; display: flex; justify-content: space-between; }
+    .total-row { font-size: 20px; font-weight: bold; color: #005088; background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
     
     .message { margin-top: 15px; padding: 15px; border-radius: 10px; font-weight: bold; text-align: center; font-size: 18px; }
     .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     
     #loading { display: none; margin-top: 15px; color: #005088; font-weight: bold; }
+    
+    .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; align-items: center; }
+    .action-buttons button { width: 100%; margin: 0; }
+    .btn-clear { background: #28a745 !important; }
+    .btn-clear:hover { background: #218838 !important; }
+    .btn-exit { background: #dc3545 !important; }
+    .btn-exit:hover { background: #c82333 !important; }
+    
+    #goodbye-msg { display: none; margin-top: 50px; color: #005088; }
+    #goodbye-msg h2 { font-size: 28px; margin-bottom: 10px; }
+    #goodbye-msg p { font-size: 18px; color: #555; }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <div id="helpModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>📌 دليل استخدام البوابة</h2>
+      <div class="help-content">
+        <p><strong>عن المنظومة:</strong> تم برمجة وتصميم هذه البوابة بواسطة <strong>الدكتور أحمد البرعصي</strong> لتسهيل استعلام طلاب مادة Problem Solving عن تقييماتهم.</p>
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+        <strong>طريقة الاستخدام:</strong>
+        <ul>
+          <li><strong>إدخال الرقم:</strong> قم بكتابة رقمك الدراسي في الخانة المخصصة. (ملاحظة: الخانة تقبل الأرقام فقط، ولا يمكن أن يبدأ الرقم بصفر).</li>
+          <li><strong>الاستعلام:</strong> اضغط على زر <strong>"استعلام عن النتيجة"</strong> لطلب بياناتك من قاعدة البيانات.</li>
+          <li><strong>بحث جديد:</strong> إذا أردت الاستعلام عن رقم آخر بعد ظهور النتيجة، اضغط على زر <strong>"مسح وطلب بحث جديد"</strong>.</li>
+          <li><strong>إنهاء الجلسة:</strong> حفاظاً على خصوصية بياناتك، يرجى الضغط على زر <strong>"خروج"</strong> عند الانتهاء من استخدام المنظومة.</li>
+        </ul>
+      </div>
+      <button class="btn-close-modal" onclick="closeHelp()">إغلاق</button>
+    </div>
+  </div>
+
+  <div id="goodbye-msg">
+    <h2>تم الخروج من النظام بنجاح</h2>
+    <p>نتمنى لك التوفيق في مسيرتك الأكاديمية!</p>
+  </div>
+
+  <div class="card" id="main-card">
     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" class="header-img" alt="شعار البوابة">
-    <h2>بوابة الطالب الأكاديمية</h2>
-      <h3>مادة Problem Solving </h3>
+    <h2>بوابة الاستعلامات الأكاديمية</h2>
+    <h4>إعداد وبرمجة الدكتور أحمد البرعصي</h4>
+    
+    <button class="btn-info" onclick="openHelp()">ℹ️ حول المنظومة وطريقة الاستخدام</button>
+
+    <h3>مادة Problem Solving </h3>
     <p>أدخل رقم الطالب الخاص بك للاستعلام عن النتيجة</p>
     
-    <input type="text" id="studentId" placeholder="رقم الطالب...">
-    <button onclick="searchInSheets()">استعلام عن النتيجة</button>
+    <input type="text" id="studentId" placeholder="...رقم الطالب" onfocus="this.select()" oninput="validateInput(this)">
+    <button id="searchBtn" onclick="searchInSheets()">استعلام عن النتيجة</button>
     
     <div id="loading">⏳ جاري البحث في قاعدة البيانات...</div>
     
     <div id="result" class="result-box">
-      <div class="row"><strong>اسم الطالب:</strong> <span id="res_name"></span></div>
-      <div class="row"><strong>درجة الجزئي (30):</strong> <span id="res_p"></span></div>
-      <div class="row"><strong>أعمال السنة (10):</strong> <span id="res_a"></span></div>
-      <div class="row"><strong>الامتحان النهائي (60):</strong> <span id="res_f"></span></div>
+      <div class="row name-row"><strong>اسم الطالب:</strong> <span id="res_name"></span></div>
       
-      <div class="total-row"><span>المجموع الكلي:</span> <span><span id="res_t"></span> / 100</span></div>
+      <div class="row" id="row_p"><strong>درجة الجزئي (30):</strong> <span id="res_p"></span></div>
+      <div class="row" id="row_a"><strong>أعمال السنة (10):</strong> <span id="res_a"></span></div>
+      <div class="row" id="row_f"><strong>الامتحان النهائي (60):</strong> <span id="res_f"></span></div>
+      
+      <div class="total-row" id="total_row_container"><strong>المجموع الكلي:</strong> <span><span id="res_t"></span> / 100</span></div>
       
       <div id="res_msg" class="message"></div>
+      
+      <div class="action-buttons">
+        <button class="btn-clear" onclick="resetSearch()">مسح وطلب بحث جديد</button>
+        <button class="btn-exit" onclick="exitSystem()">خروج</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // رابط ملفك الذي أرسلته لي:
     const mySheetLink = "https://docs.google.com/spreadsheets/d/1r5e80G1SY01WDehQ5Ao-2Jr21Le71mb-yxuDCVPua2k/edit?usp=drivesdk"; 
 
-    // الدالة الخارقة التي ستعالج البيانات وتتخطى الحظر
+    function openHelp() {
+        document.getElementById('helpModal').style.display = 'flex';
+    }
+
+    function closeHelp() {
+        document.getElementById('helpModal').style.display = 'none';
+    }
+
+    function resetSearch() {
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('searchBtn').disabled = false;
+        let inputField = document.getElementById('studentId');
+        inputField.value = '';
+        inputField.focus();
+    }
+
+    function exitSystem() {
+        document.getElementById('main-card').style.display = 'none';
+        document.getElementById('goodbye-msg').style.display = 'block';
+    }
+
+    function validateInput(inputField) {
+        let val = inputField.value;
+        if (val.length === 0) return;
+
+        if (val.charAt(0) === '0' || val.charAt(0) === '٠') {
+            alert("لا يوجد رقم دراسي يبدأ بصفر.\nأعد الإدخال من جديد.");
+            inputField.value = '';
+            inputField.focus();
+            return;
+        }
+
+        let invalidCharsRegex = /[^0-9٠-٩]/;
+        if (invalidCharsRegex.test(val)) {
+            alert("هذه الخانة خاصة بإدخال الأرقام فقط.\nأعد الإدخال من جديد.");
+            inputField.value = '';
+            inputField.focus();
+            return;
+        }
+    }
+
+    function toEnglishDigits(str) {
+        return str.replace(/[٠-٩]/g, function(d) {
+            return d.charCodeAt(0) - 1632;
+        });
+    }
+
     window.handleGoogleData = function(data) {
         document.getElementById('loading').style.display = 'none';
         
-        let idInput = document.getElementById('studentId').value.trim();
+        let originalInput = document.getElementById('studentId').value.trim();
+        let idInput = toEnglishDigits(originalInput);
+        
         let rows = data.table.rows;
         let found = false;
 
         for(let i = 0; i < rows.length; i++) {
           let row = rows[i].c;
-          // التحقق من رقم الطالب
-          if(row && row[0] && row[0].v != null && row[0].v.toString().trim() === idInput) {
-            found = true;
-            
-            let name = row[1] && row[1].v != null ? row[1].v : "غير مسجل";
-            let partial = row[2] && row[2].v != null ? row[2].v : 0;
-            let activities = row[3] && row[3].v != null ? row[3].v : 0;
-            let finalGrade = row[4] && row[4].v != null ? row[4].v : 0;
-            let total = row[5] && row[5].v != null ? row[5].v : (Number(partial) + Number(activities) + Number(finalGrade));
+          
+          if(row && row[0] && row[0].v != null) {
+            let rowId = toEnglishDigits(row[0].v.toString().trim());
 
-            document.getElementById('res_name').innerText = name;
-            document.getElementById('res_p').innerText = partial;
-            document.getElementById('res_a').innerText = activities;
-            document.getElementById('res_f').innerText = finalGrade;
-            document.getElementById('res_t').innerText = total;
+            if(rowId === idInput) {
+                found = true;
+                
+                document.getElementById('searchBtn').disabled = true;
 
-            let msgBox = document.getElementById('res_msg');
-            if(Number(total) >= 50) {
-              msgBox.className = "message success";
-              msgBox.innerText = "مبروك النجاح.";
-            } else {
-              msgBox.className = "message fail";
-              msgBox.innerText = " لم توفق / ي هذه المرة، نرجو لك التوفيق في المرات القادمة.";
+                let name = row[1] && row[1].v != null ? row[1].v : "غير مسجل";
+                document.getElementById('res_name').innerText = name;
+
+                let hasPartial = row[2] && row[2].v != null && row[2].v !== "";
+                let hasActivities = row[3] && row[3].v != null && row[3].v !== "";
+                let hasFinal = row[4] && row[4].v != null && row[4].v !== "";
+
+                let p_val = hasPartial ? Number(row[2].v) : 0;
+                let a_val = hasActivities ? Number(row[3].v) : 0;
+                let f_val = hasFinal ? Number(row[4].v) : 0;
+                let currentTotal = p_val + a_val + f_val;
+
+                let rowP = document.getElementById('row_p');
+                let resP = document.getElementById('res_p');
+                if (hasPartial) {
+                    rowP.classList.remove('col-layout');
+                    resP.innerText = row[2].v;
+                    resP.style.color = '#333';
+                    resP.style.background = 'transparent';
+                } else {
+                    rowP.classList.add('col-layout');
+                    if (hasActivities || hasFinal) {
+                        resP.innerText = "لم ترصد";
+                    } else {
+                        resP.innerText = "لم ترصد بعد";
+                    }
+                }
+
+                let rowA = document.getElementById('row_a');
+                let resA = document.getElementById('res_a');
+                if (hasActivities) {
+                    rowA.classList.remove('col-layout');
+                    resA.innerText = row[3].v;
+                    resA.style.color = '#333';
+                    resA.style.background = 'transparent';
+                } else {
+                    rowA.classList.add('col-layout');
+                    if (hasFinal) {
+                        resA.innerText = "لم ترصد";
+                    } else {
+                        resA.innerText = "لم ترصد بعد";
+                    }
+                }
+
+                let rowF = document.getElementById('row_f');
+                let resF = document.getElementById('res_f');
+                if (hasFinal) {
+                    rowF.classList.remove('col-layout');
+                    resF.innerText = row[4].v;
+                    resF.style.color = '#333';
+                    resF.style.background = 'transparent';
+                } else {
+                    rowF.classList.add('col-layout');
+                    if (!hasPartial && hasActivities) {
+                        resF.innerText = "لم ترصد";
+                    } else {
+                        resF.innerText = "لم ترصد بعد";
+                    }
+                }
+
+                let totalContainer = document.getElementById('total_row_container');
+                let msgBox = document.getElementById('res_msg');
+
+                if (hasPartial || hasActivities || hasFinal) {
+                    document.getElementById('res_t').innerText = currentTotal;
+                    totalContainer.style.display = 'flex';
+
+                    if (hasFinal) {
+                        msgBox.style.display = 'block';
+                        if (currentTotal >= 50) {
+                            msgBox.className = "message success";
+                            msgBox.innerText = "مبروك النجاح.";
+                        } else {
+                            msgBox.className = "message fail";
+                            msgBox.innerText = "لم توفق / ي هذه المرة، نرجو لك التوفيق في المرات القادمة.";
+                        }
+                    } else {
+                        msgBox.style.display = 'none';
+                    }
+                } else {
+                    totalContainer.style.display = 'none';
+                    msgBox.style.display = 'none';
+                }
+
+                document.getElementById('result').style.display = 'block';
+                break;
             }
-
-            document.getElementById('result').style.display = 'block';
-            break;
           }
         }
 
         if(!found) {
-          alert('❌ الرقم (' + idInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
+          alert('❌ الرقم (' + originalInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
         }
     };
 
@@ -107,14 +294,11 @@
       document.getElementById('loading').style.display = 'block';
       document.getElementById('result').style.display = 'none';
 
-      // استخراج كود الملف من الرابط
       let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
 
-      // حذف السكربت القديم إن وجد لتحديث البحث
       let oldScript = document.getElementById('google-jsonp');
       if(oldScript) oldScript.remove();
 
-      // إنشاء سكربت جديد يتخطى حماية المتصفح (JSONP)
       let script = document.createElement('script');
       script.id = 'google-jsonp';
       script.src = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json;responseHandler:handleGoogleData`;
