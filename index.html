@@ -19,7 +19,7 @@
     button:hover { background: #003d66; }
     button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed !important; }
     
-    /* تنسيق زر التعليمات والنافذة المنبثقة (Modal) */
+    /* تنسيق زر التعليمات والنافذة المنبثقة */
     .btn-info { background: #17a2b8; margin: 10px auto 20px; display: block; font-size: 15px; padding: 10px 15px; width: auto; border-radius: 8px; }
     .btn-info:hover { background: #138496; }
     
@@ -58,10 +58,6 @@
     .btn-clear:hover { background: #218838 !important; }
     .btn-exit { background: #dc3545 !important; }
     .btn-exit:hover { background: #c82333 !important; }
-    
-    #goodbye-msg { display: none; margin-top: 50px; color: #005088; }
-    #goodbye-msg h2 { font-size: 28px; margin-bottom: 10px; }
-    #goodbye-msg p { font-size: 18px; color: #555; }
   </style>
 </head>
 <body>
@@ -84,9 +80,10 @@
     </div>
   </div>
 
-  <div id="goodbye-msg">
-    <h2>تم الخروج من النظام بنجاح</h2>
-    <p>نتمنى لك التوفيق في مسيرتك الأكاديمية!</p>
+  <div id="goodbye-msg" class="card" style="display: none; border-top-color: #dc3545; margin-top: 50px;">
+    <h2 style="color: #dc3545;">تم الخروج من النظام بنجاح</h2>
+    <p style="font-size: 18px; color: #555; margin-bottom: 25px;">نتمنى لك التوفيق في مسيرتك الأكاديمية!</p>
+    <button class="btn-exit" onclick="finalExit()">خروج نهائي</button>
   </div>
 
   <div class="card" id="main-card">
@@ -100,7 +97,9 @@
     <p>أدخل رقم الطالب الخاص بك للاستعلام عن النتيجة</p>
     
     <input type="text" id="studentId" placeholder="...رقم الطالب" onfocus="this.select()" oninput="validateInput(this)">
+    
     <button id="searchBtn" onclick="searchInSheets()">استعلام عن النتيجة</button>
+    <button id="initExitBtn" class="btn-exit" style="margin-top: 12px;" onclick="exitSystem()">إلغاء وخروج</button>
     
     <div id="loading">⏳ جاري البحث في قاعدة البيانات...</div>
     
@@ -136,6 +135,10 @@
     function resetSearch() {
         document.getElementById('result').style.display = 'none';
         document.getElementById('searchBtn').disabled = false;
+        
+        // إظهار زر الخروج الابتدائي من جديد
+        document.getElementById('initExitBtn').style.display = 'inline-block';
+        
         let inputField = document.getElementById('studentId');
         inputField.value = '';
         inputField.focus();
@@ -144,6 +147,22 @@
     function exitSystem() {
         document.getElementById('main-card').style.display = 'none';
         document.getElementById('goodbye-msg').style.display = 'block';
+    }
+
+    // دالة الخروج النهائي للعودة من حيث أتى الطالب
+    function finalExit() {
+        // محاولة العودة للصفحة السابقة في المتصفح
+        if (window.history.length > 1) {
+            window.history.back();
+        }
+        // محاولة إغلاق التبويبة مباشرة كخيار بديل
+        setTimeout(function() {
+            window.close();
+        }, 300);
+        // توجيه لصفحة فارغة إذا منع المتصفح الإجراءين السابقين
+        setTimeout(function() {
+            window.location.href = "about:blank";
+        }, 600);
     }
 
     function validateInput(inputField) {
@@ -284,6 +303,10 @@
 
         if(!found) {
           alert('❌ الرقم (' + originalInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
+          // إعادة تفعيل الزر في حالة عدم العثور على الرقم
+          document.getElementById('searchBtn').disabled = false;
+          // إظهار زر الإلغاء والخروج من جديد
+          document.getElementById('initExitBtn').style.display = 'inline-block';
         }
     };
 
@@ -293,6 +316,9 @@
 
       document.getElementById('loading').style.display = 'block';
       document.getElementById('result').style.display = 'none';
+      
+      // إخفاء زر الخروج الابتدائي لمنع التشتت أثناء البحث
+      document.getElementById('initExitBtn').style.display = 'none';
 
       let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
 
@@ -306,6 +332,8 @@
       script.onerror = function() {
         document.getElementById('loading').style.display = 'none';
         alert("فشل الاتصال! تأكد أن هاتفك متصل بالإنترنت.");
+        document.getElementById('searchBtn').disabled = false;
+        document.getElementById('initExitBtn').style.display = 'inline-block';
       };
 
       document.body.appendChild(script);
