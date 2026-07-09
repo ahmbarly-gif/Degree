@@ -19,7 +19,6 @@
     button:hover { background: #003d66; }
     button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed !important; }
     
-    /* تنسيق زر التعليمات والنافذة المنبثقة */
     .btn-info { background: #17a2b8; margin: 10px auto 20px; display: block; font-size: 15px; padding: 10px 15px; width: auto; border-radius: 8px; }
     .btn-info:hover { background: #138496; }
     
@@ -28,7 +27,7 @@
     .modal-box h2 { font-size: 22px; border-bottom: 2px solid #eef2f3; padding-bottom: 10px; text-align: center; }
     .help-content { font-size: 15px; line-height: 1.8; color: #444; max-height: 60vh; overflow-y: auto; margin-top: 15px; padding-left: 10px; }
     .help-content ul { padding-right: 20px; }
-    .help-content li { margin-bottom: 10px; }
+    .help-content li { margin-bottom: 12px; }
     .btn-close-modal { background: #6c757d; margin-top: 20px; width: 100%; }
     .btn-close-modal:hover { background: #5a6268; }
 
@@ -56,8 +55,9 @@
     .action-buttons button { width: 100%; margin: 0; }
     .btn-clear { background: #28a745 !important; }
     .btn-clear:hover { background: #218838 !important; }
-    .btn-exit { background: #dc3545 !important; }
-    .btn-exit:hover { background: #c82333 !important; }
+    
+    /* تنسيق مربع تعليمات الخروج في الواجهة الرئيسية */
+    .exit-instructions { margin-top: 25px; font-size: 14px; color: #555; background: #f1f1f1; padding: 15px; border-radius: 10px; line-height: 1.6; text-align: center; }
   </style>
 </head>
 <body>
@@ -66,24 +66,23 @@
     <div class="modal-box">
       <h2>📌 دليل استخدام البوابة</h2>
       <div class="help-content">
-        <p><strong>عن المنظومة:</strong> تم برمجة وتصميم هذه البوابة بواسطة <strong>الدكتور أحمد البرعصي</strong> لتسهيل استعلام طلاب مادة Problem Solving عن تقييماتهم.</p>
+        <p><strong>عن المنظومة:</strong> تمت برمجة وتصميم هذه البوابة بواسطة <strong>الدكتور أحمد البرعصي</strong> لتسهيل استعلام طلاب مادة Problem Solving عن تقييماتهم.</p>
         <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
         <strong>طريقة الاستخدام:</strong>
         <ul>
           <li><strong>إدخال الرقم:</strong> قم بكتابة رقمك الدراسي في الخانة المخصصة. (ملاحظة: الخانة تقبل الأرقام فقط، ولا يمكن أن يبدأ الرقم بصفر).</li>
           <li><strong>الاستعلام:</strong> اضغط على زر <strong>"استعلام عن النتيجة"</strong> لطلب بياناتك من قاعدة البيانات.</li>
           <li><strong>بحث جديد:</strong> إذا أردت الاستعلام عن رقم آخر بعد ظهور النتيجة، اضغط على زر <strong>"مسح وطلب بحث جديد"</strong>.</li>
-          <li><strong>إنهاء الجلسة:</strong> حفاظاً على خصوصية بياناتك، يرجى الضغط على زر <strong>"خروج"</strong> عند الانتهاء من استخدام المنظومة.</li>
+          <li><strong>طريقة الخروج نهائياً:</strong>
+            <ul style="margin-top: 5px; padding-right: 15px; list-style-type: circle;">
+              <li><strong>في نظام الأندرويد (Android):</strong> اضغط مرتين متتاليتين على زر العودة <strong>( &gt; )</strong> الموجود أسفل الهاتف.</li>
+              <li><strong>في نظام (iOS):</strong> اسحب الشاشة من الحافة الجانبية إلى الداخل.</li>
+            </ul>
+          </li>
         </ul>
       </div>
       <button class="btn-close-modal" onclick="closeHelp()">إغلاق</button>
     </div>
-  </div>
-
-  <div id="goodbye-msg" class="card" style="display: none; border-top-color: #dc3545; margin-top: 50px;">
-    <h2 style="color: #dc3545;">تم الخروج من النظام بنجاح</h2>
-    <p style="font-size: 18px; color: #555; margin-bottom: 25px;">نتمنى لك التوفيق في مسيرتك الأكاديمية!</p>
-    <button class="btn-exit" onclick="finalExit()">خروج نهائي</button>
   </div>
 
   <div class="card" id="main-card">
@@ -93,13 +92,12 @@
     
     <button class="btn-info" onclick="openHelp()">ℹ️ حول المنظومة وطريقة الاستخدام</button>
 
-    <h3>مادة Problem Solving </h3>
+    <h3>مادة Problem Solving</h3>
     <p>أدخل رقم الطالب الخاص بك للاستعلام عن النتيجة</p>
     
     <input type="text" id="studentId" placeholder="...رقم الطالب" onfocus="this.select()" oninput="validateInput(this)">
     
     <button id="searchBtn" onclick="searchInSheets()">استعلام عن النتيجة</button>
-    <button id="initExitBtn" class="btn-exit" style="margin-top: 12px;" onclick="exitSystem()">إلغاء وخروج</button>
     
     <div id="loading">⏳ جاري البحث في قاعدة البيانات...</div>
     
@@ -116,8 +114,13 @@
       
       <div class="action-buttons">
         <button class="btn-clear" onclick="resetSearch()">مسح وطلب بحث جديد</button>
-        <button class="btn-exit" onclick="exitSystem()">خروج</button>
       </div>
+    </div>
+
+    <div class="exit-instructions">
+      <span style="color: #d32f2f; font-weight: bold; font-size: 15px; display: block; margin-bottom: 5px;">للخروج من المنظومة:</span>
+      اضغط مرتين متتاليتين على الزر <strong>( &gt; )</strong> الموجود أسفل الهاتف في نظام الأندرويد.<br>
+      أو اسحب الشاشة من الحافة الجانبية إلى الداخل في نظام iOS.
     </div>
   </div>
 
@@ -135,34 +138,9 @@
     function resetSearch() {
         document.getElementById('result').style.display = 'none';
         document.getElementById('searchBtn').disabled = false;
-        
-        // إظهار زر الخروج الابتدائي من جديد
-        document.getElementById('initExitBtn').style.display = 'inline-block';
-        
         let inputField = document.getElementById('studentId');
         inputField.value = '';
         inputField.focus();
-    }
-
-    function exitSystem() {
-        document.getElementById('main-card').style.display = 'none';
-        document.getElementById('goodbye-msg').style.display = 'block';
-    }
-
-    // دالة الخروج النهائي للعودة من حيث أتى الطالب
-    function finalExit() {
-        // محاولة العودة للصفحة السابقة في المتصفح
-        if (window.history.length > 1) {
-            window.history.back();
-        }
-        // محاولة إغلاق التبويبة مباشرة كخيار بديل
-        setTimeout(function() {
-            window.close();
-        }, 300);
-        // توجيه لصفحة فارغة إذا منع المتصفح الإجراءين السابقين
-        setTimeout(function() {
-            window.location.href = "about:blank";
-        }, 600);
     }
 
     function validateInput(inputField) {
@@ -303,10 +281,7 @@
 
         if(!found) {
           alert('❌ الرقم (' + originalInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
-          // إعادة تفعيل الزر في حالة عدم العثور على الرقم
           document.getElementById('searchBtn').disabled = false;
-          // إظهار زر الإلغاء والخروج من جديد
-          document.getElementById('initExitBtn').style.display = 'inline-block';
         }
     };
 
@@ -316,9 +291,6 @@
 
       document.getElementById('loading').style.display = 'block';
       document.getElementById('result').style.display = 'none';
-      
-      // إخفاء زر الخروج الابتدائي لمنع التشتت أثناء البحث
-      document.getElementById('initExitBtn').style.display = 'none';
 
       let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
 
@@ -333,7 +305,6 @@
         document.getElementById('loading').style.display = 'none';
         alert("فشل الاتصال! تأكد أن هاتفك متصل بالإنترنت.");
         document.getElementById('searchBtn').disabled = false;
-        document.getElementById('initExitBtn').style.display = 'inline-block';
       };
 
       document.body.appendChild(script);
@@ -341,3 +312,4 @@
   </script>
 </body>
 </html>
+
