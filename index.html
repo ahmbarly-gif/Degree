@@ -31,6 +31,11 @@
     .btn-close-modal { background: #6c757d; margin-top: 20px; width: 100%; }
     .btn-close-modal:hover { background: #5a6268; }
 
+    /* تنسيق خاص بنافذة رسائل الخطأ */
+    .alert-box { text-align: center; max-width: 320px; }
+    .alert-icon { font-size: 45px; margin-bottom: 10px; }
+    .alert-msg { font-size: 16px; color: #444; line-height: 1.6; white-space: pre-wrap; font-weight: bold; }
+
     .result-box { display: none; margin-top: 25px; background: #f9f9f9; padding: 20px; border-radius: 15px; text-align: right; }
     .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 12px 0; align-items: flex-start; }
     .row strong { white-space: nowrap; margin-left: 15px; }
@@ -75,13 +80,21 @@
           <li><strong>بحث جديد:</strong> إذا أردت الاستعلام عن رقم آخر بعد ظهور النتيجة، اضغط على زر <strong>"مسح وطلب بحث جديد"</strong>.</li>
           <li><strong>طريقة الخروج نهائياً:</strong>
             <ul style="margin-top: 5px; padding-right: 15px; list-style-type: circle;">
-              <li><strong>في نظام الأندرويد (Android):</strong> اضغط مره أو مرتين متتاليتين على زر العودة <strong>( &gt; )</strong> الموجود أسفل الهاتف.</li>
+              <li><strong>في نظام الأندرويد (Android):</strong> اضغط مرتين متتاليتين على زر العودة <strong>( &gt; )</strong> الموجود أسفل الهاتف.</li>
               <li><strong>في نظام (iOS):</strong> اسحب الشاشة من الحافة الجانبية إلى الداخل.</li>
             </ul>
           </li>
         </ul>
       </div>
       <button class="btn-close-modal" onclick="closeHelp()">إغلاق</button>
+    </div>
+  </div>
+
+  <div id="customAlertModal" class="modal-overlay" style="z-index: 2000;">
+    <div class="modal-box alert-box">
+      <div class="alert-icon">⚠️</div>
+      <div id="customAlertMessage" class="alert-msg"></div>
+      <button class="btn-close-modal" style="background: #005088; margin-top: 20px;" onclick="closeCustomAlert()">حسناً</button>
     </div>
   </div>
 
@@ -119,7 +132,7 @@
 
     <div class="exit-instructions">
       <span style="color: #d32f2f; font-weight: bold; font-size: 15px; display: block; margin-bottom: 5px;">للخروج من المنظومة:</span>
-      اضغط مره أو مرتين متتاليتين على الزر <strong>( &gt; )</strong> الموجود أسفل الهاتف في نظام الأندرويد.<br>
+      اضغط مرتين متتاليتين على الزر <strong>( &gt; )</strong> الموجود أسفل الهاتف في نظام الأندرويد.<br>
       أو اسحب الشاشة من الحافة الجانبية إلى الداخل في نظام iOS.
     </div>
   </div>
@@ -127,12 +140,24 @@
   <script>
     const mySheetLink = "https://docs.google.com/spreadsheets/d/1r5e80G1SY01WDehQ5Ao-2Jr21Le71mb-yxuDCVPua2k/edit?usp=drivesdk"; 
 
+    // دوال النوافذ المنبثقة
     function openHelp() {
         document.getElementById('helpModal').style.display = 'flex';
     }
 
     function closeHelp() {
         document.getElementById('helpModal').style.display = 'none';
+    }
+
+    // دالة عرض رسائل الخطأ المخصصة (البديلة لـ alert)
+    function showCustomAlert(msg) {
+        document.getElementById('customAlertMessage').innerText = msg;
+        document.getElementById('customAlertModal').style.display = 'flex';
+    }
+
+    function closeCustomAlert() {
+        document.getElementById('customAlertModal').style.display = 'none';
+        document.getElementById('studentId').focus();
     }
 
     function resetSearch() {
@@ -148,17 +173,15 @@
         if (val.length === 0) return;
 
         if (val.charAt(0) === '0' || val.charAt(0) === '٠') {
-            alert("لا يوجد رقم دراسي يبدأ بصفر.\nأعد الإدخال من جديد.");
             inputField.value = '';
-            inputField.focus();
+            showCustomAlert("لا يوجد رقم دراسي يبدأ بصفر.\nأعد الإدخال من جديد.");
             return;
         }
 
         let invalidCharsRegex = /[^0-9٠-٩]/;
         if (invalidCharsRegex.test(val)) {
-            alert("هذه الخانة خاصة بإدخال الأرقام فقط.\nأعد الإدخال من جديد.");
             inputField.value = '';
-            inputField.focus();
+            showCustomAlert("هذه الخانة خاصة بإدخال الأرقام فقط.\nأعد الإدخال من جديد.");
             return;
         }
     }
@@ -280,14 +303,14 @@
         }
 
         if(!found) {
-          alert('❌ الرقم (' + originalInput + ') غير موجود بالملف! تأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
+          showCustomAlert('❌ الرقم (' + originalInput + ') غير موجود بالملف!\nتأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
           document.getElementById('searchBtn').disabled = false;
         }
     };
 
     function searchInSheets() {
       let idInput = document.getElementById('studentId').value;
-      if(!idInput) { alert("الرجاء إدخال رقم الطالب!"); return; }
+      if(!idInput) { showCustomAlert("الرجاء إدخال رقم الطالب!"); return; }
 
       document.getElementById('loading').style.display = 'block';
       document.getElementById('result').style.display = 'none';
@@ -303,7 +326,7 @@
       
       script.onerror = function() {
         document.getElementById('loading').style.display = 'none';
-        alert("فشل الاتصال! تأكد أن هاتفك متصل بالإنترنت.");
+        showCustomAlert("فشل الاتصال!\nتأكد أن هاتفك متصل بالإنترنت.");
         document.getElementById('searchBtn').disabled = false;
       };
 
