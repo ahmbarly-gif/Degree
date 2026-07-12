@@ -7,21 +7,30 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; text-align: center; padding: 20px; margin: 0; color: #333; }
     .header-img { width: 80px; margin-bottom: 10px; }
+    
+    /* بطاقات الواجهة */
     .card { background: white; max-width: 450px; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-top: 5px solid #005088; position: relative; }
+    .admin-card { background: white; max-width: 95%; margin: 20px auto; padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-top: 5px solid #28a745; display: none; }
+    
     h2 { color: #005088; margin-top: 0; margin-bottom: 5px; }
     h4 { color: #555; margin-top: 0; margin-bottom: 15px; font-weight: bold; }
     h3 { background: #e3f2fd; padding: 10px; border-radius: 10px; color: #005088; display: inline-block; margin-top: 5px; }
     
+    /* حقول الإدخال */
     input { width: 90%; padding: 14px; margin: 15px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; text-align: center; direction: ltr !important; transition: 0.3s; }
     input:focus { border-color: #005088; outline: none; }
+    input:disabled { background-color: #e9ecef; cursor: not-allowed; opacity: 0.6; border-color: #ccc; }
     
     button { background: #005088; color: white; border: none; padding: 14px 25px; border-radius: 10px; cursor: pointer; width: 90%; font-size: 16px; font-weight: bold; transition: 0.3s; }
     button:hover { background: #003d66; }
     button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed !important; }
     
-    .btn-info { background: #17a2b8; margin: 10px auto 20px; display: block; font-size: 15px; padding: 10px 15px; width: auto; border-radius: 8px; }
+    .btn-info { background: #17a2b8; margin: 10px auto; display: block; font-size: 15px; padding: 10px 15px; width: auto; border-radius: 8px; }
     .btn-info:hover { background: #138496; }
+    .btn-admin { background: #6c757d; margin: 20px auto 10px; display: block; font-size: 14px; padding: 8px 15px; width: auto; border-radius: 8px; }
+    .btn-admin:hover { background: #5a6268; }
     
+    /* النوافذ المنبثقة */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
     .modal-box { background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 15px; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-box h2 { font-size: 22px; border-bottom: 2px solid #eef2f3; padding-bottom: 10px; text-align: center; }
@@ -31,11 +40,12 @@
     .btn-close-modal { background: #6c757d; margin-top: 20px; width: 100%; }
     .btn-close-modal:hover { background: #5a6268; }
 
-    /* تنسيق خاص بنافذة رسائل الخطأ */
+    /* نافذة رسائل الخطأ */
     .alert-box { text-align: center; max-width: 320px; }
     .alert-icon { font-size: 45px; margin-bottom: 10px; }
     .alert-msg { font-size: 16px; color: #444; line-height: 1.6; white-space: pre-wrap; font-weight: bold; }
 
+    /* نتائج استعلام الطالب */
     .result-box { display: none; margin-top: 25px; background: #f9f9f9; padding: 20px; border-radius: 15px; text-align: right; }
     .row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 12px 0; align-items: flex-start; }
     .row strong { white-space: nowrap; margin-left: 15px; }
@@ -54,39 +64,109 @@
     .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     
-    #loading { display: none; margin-top: 15px; color: #005088; font-weight: bold; }
+    #loading, #adminLoading { display: none; margin-top: 15px; color: #005088; font-weight: bold; }
     
     .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; align-items: center; }
     .action-buttons button { width: 100%; margin: 0; }
     .btn-clear { background: #28a745 !important; }
     .btn-clear:hover { background: #218838 !important; }
     
-    /* تنسيق مربع تعليمات الخروج في الواجهة الرئيسية */
     .exit-instructions { margin-top: 25px; font-size: 14px; color: #555; background: #f1f1f1; padding: 15px; border-radius: 10px; line-height: 1.6; text-align: center; }
+
+    /* -------------------------------------
+       تنسيقات شبكة المسؤول (DBGrid Simulator)
+       ------------------------------------- */
+    .record-indicator { text-align: right; font-weight: bold; color: #005088; font-size: 18px; margin-bottom: 5px; padding-right: 10px; }
+       
+    .table-container { 
+        overflow: auto; 
+        width: 100%; 
+        max-height: 50vh; 
+        border: 2px solid #28a745; 
+        border-radius: 8px; 
+        background: #fff;
+        position: relative;
+        -webkit-overflow-scrolling: touch; 
+        margin-bottom: 15px;
+    }
+    
+    .admin-table { 
+        width: 100%; 
+        min-width: 900px; 
+        border-collapse: separate; 
+        border-spacing: 0;
+        text-align: center; 
+        font-size: 14px; 
+    }
+    
+    .admin-table th, .admin-table td { 
+        padding: 12px 10px; 
+        border-bottom: 1px solid #ddd; 
+        border-left: 1px solid #ddd;
+        white-space: nowrap; 
+        cursor: pointer; 
+    }
+    
+    .admin-table th { 
+        background: #28a745; 
+        color: white; 
+        position: sticky; 
+        top: 0; 
+        z-index: 10; 
+        border-bottom: 3px solid #1e7e34; 
+    }
+    
+    .admin-table tr:hover:not(.selected-row) { background-color: #f1f9f2; }
+    .td-empty { color: #d32f2f; font-weight: bold; font-size: 12px; }
+
+    .selected-row { background-color: #005088 !important; color: white !important; }
+    .selected-row .td-empty { color: #ffcccc !important; } 
+
+    /* أزرار التنقل والبحث */
+    .db-navigator { display: flex; gap: 5px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .db-navigator button { width: auto; margin: 0; padding: 10px 15px; font-size: 14px; background: #17a2b8; }
+    .db-navigator button:hover { background: #138496; }
+    .btn-show-detail { background: #28a745 !important; border: 2px solid #1e7e34 !important; margin-right: auto !important;}
+    .btn-show-detail:hover { background: #218838 !important; }
+
+    .search-wrapper { display: flex; gap: 15px; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
+    .input-group { position: relative; width: 48%; }
+    .input-group input { width: 100%; margin: 0; padding: 12px 40px 12px 12px; box-sizing: border-box; }
+    .input-group .clear-btn { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 14px; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+    .input-group .clear-btn:hover { background: #c82333; }
+    
+    @media (max-width: 600px) { 
+        .input-group { width: 100%; }
+        .db-navigator button { padding: 8px 10px; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- النوافذ المنبثقة الأساسية -->
   <div id="helpModal" class="modal-overlay">
     <div class="modal-box">
       <h2>📌 دليل استخدام البوابة</h2>
       <div class="help-content">
-        <p><strong>عن المنظومة:</strong> تمت برمجة وتصميم هذه البوابة بواسطة <strong>الدكتور أحمد البرعصي</strong> لتسهيل استعلام طلاب مادة Problem Solving عن تقييماتهم.</p>
+        <p><strong>عن المنظومة:</strong> تمت برمجة وتصميم هذه البوابة بواسطة <strong>الدكتور أحمد البرعصي</strong>.</p>
         <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
         <strong>طريقة الاستخدام:</strong>
         <ul>
-          <li><strong>إدخال الرقم:</strong> قم بكتابة رقمك الدراسي في الخانة المخصصة. (ملاحظة: الخانة تقبل الأرقام فقط، ولا يمكن أن يبدأ الرقم بصفر).</li>
-          <li><strong>الاستعلام:</strong> اضغط على زر <strong>"استعلام عن النتيجة"</strong> لطلب بياناتك من قاعدة البيانات.</li>
-          <li><strong>بحث جديد:</strong> إذا أردت الاستعلام عن رقم آخر بعد ظهور النتيجة، اضغط على زر <strong>"مسح وطلب بحث جديد"</strong>.</li>
-          <li><strong>طريقة الخروج نهائياً:</strong>
-            <ul style="margin-top: 5px; padding-right: 15px; list-style-type: circle;">
-              <li><strong>في نظام الأندرويد (Android):</strong> اضغط مرتين متتاليتين على زر العودة <strong>( &gt; )</strong> الموجود أسفل الهاتف.</li>
-              <li><strong>في نظام (iOS):</strong> اسحب الشاشة من الحافة الجانبية إلى الداخل.</li>
-            </ul>
-          </li>
+          <li><strong>إدخال الرقم:</strong> قم بكتابة رقمك الدراسي في الخانة المخصصة.</li>
+          <li><strong>طريقة الخروج نهائياً:</strong> اضغط مرتين متتاليتين على زر العودة في أندرويد، أو اسحب الشاشة للداخل في iOS.</li>
         </ul>
       </div>
       <button class="btn-close-modal" onclick="closeHelp()">إغلاق</button>
+    </div>
+  </div>
+
+  <div id="adminLoginModal" class="modal-overlay">
+    <div class="modal-box" style="text-align: center;">
+      <h2 style="color: #28a745;">🔒 صلاحيات المسؤول</h2>
+      <p style="font-size: 14px; color: #666;">الرجاء إدخال كلمة المرور للوصول إلى السجلات المجمعة.</p>
+      <input type="password" id="adminPassword" placeholder="كلمة المرور..." style="direction: ltr !important;">
+      <button style="background: #28a745; margin-top: 10px;" onclick="verifyAdmin()">دخول</button>
+      <button class="btn-close-modal" style="margin-top: 10px;" onclick="closeAdminLogin()">إلغاء</button>
     </div>
   </div>
 
@@ -98,33 +178,50 @@
     </div>
   </div>
 
+  <!-- نافذة عرض تفاصيل الطالب للمسؤول -->
+  <div id="studentDetailModal" class="modal-overlay" style="z-index: 1500;">
+    <div class="modal-box" style="max-width: 400px; text-align: right; border-top: 5px solid #28a745; padding-top: 15px;">
+      
+      <div id="detailContent" style="font-size: 16px; line-height: 1.8; color: #333;">
+          <!-- سيتم تعبئة البيانات برمجياً -->
+      </div>
+      
+      <!-- أزرار التنقل المدمجة داخل البطاقة بالترتيب المطلوب من اليمين لليسار -->
+      <div class="db-navigator" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; gap: 4px; display: flex; justify-content: space-between;">
+        <button onclick="navigateInModal('first')" style="padding: 8px 10px; font-size: 12px; flex: 1; margin: 2px;">السجل الأول</button>
+        <button onclick="navigateInModal('next')" style="padding: 8px 10px; font-size: 12px; flex: 1; margin: 2px;">السجل التالي</button>
+        <button onclick="navigateInModal('prev')" style="padding: 8px 10px; font-size: 12px; flex: 1; margin: 2px;">السجل السابق</button>
+        <button onclick="navigateInModal('last')" style="padding: 8px 10px; font-size: 12px; flex: 1; margin: 2px;">السجل الأخير</button>
+      </div>
+
+      <button class="btn-close-modal" style="background: #6c757d; margin-top: 10px;" onclick="closeStudentDetails()">إغلاق والعودة للقائمة</button>
+    </div>
+  </div>
+
+  <!-- واجهة الطالب -->
   <div class="card" id="main-card">
     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" class="header-img" alt="شعار البوابة">
     <h2>بوابة الاستعلامات الأكاديمية</h2>
     <h4>إعداد وبرمجة الدكتور أحمد البرعصي</h4>
     
     <button class="btn-info" onclick="openHelp()">ℹ️ حول المنظومة وطريقة الاستخدام</button>
+    <button class="btn-admin" onclick="openAdminLogin()">⚙️ مسؤول النظام</button>
 
-    <h3>مادة Problem Solving</h3>
+    <h3 style="margin-top: 15px;">مادة Problem Solving</h3>
     <p>أدخل رقم الطالب الخاص بك للاستعلام عن النتيجة</p>
     
     <input type="text" id="studentId" placeholder="...رقم الطالب" onfocus="this.select()" oninput="validateInput(this)">
-    
-    <button id="searchBtn" onclick="searchInSheets()">استعلام عن النتيجة</button>
+    <button id="searchBtn" onclick="searchStudentInSheets()">استعلام عن النتيجة</button>
     
     <div id="loading">⏳ جاري البحث في قاعدة البيانات...</div>
     
     <div id="result" class="result-box">
       <div class="row name-row"><strong>اسم الطالب:</strong> <span id="res_name"></span></div>
-      
       <div class="row" id="row_p"><strong>درجة الجزئي (30):</strong> <span id="res_p"></span></div>
       <div class="row" id="row_a"><strong>أعمال السنة (10):</strong> <span id="res_a"></span></div>
       <div class="row" id="row_f"><strong>الامتحان النهائي (60):</strong> <span id="res_f"></span></div>
-      
       <div class="total-row" id="total_row_container"><strong>المجموع الكلي:</strong> <span><span id="res_t"></span> / 100</span></div>
-      
       <div id="res_msg" class="message"></div>
-      
       <div class="action-buttons">
         <button class="btn-clear" onclick="resetSearch()">مسح وطلب بحث جديد</button>
       </div>
@@ -137,201 +234,392 @@
     </div>
   </div>
 
+  <!-- واجهة المسؤول -->
+  <div class="admin-card" id="admin-card">
+    <h2 style="color: #28a745; margin-bottom: 20px;">📊 لوحة تحكم أستاذ المقرر</h2>
+    
+    <div id="adminLoading">⏳ جاري تحميل السجلات بالكامل...</div>
+
+    <!-- مؤشر السجل الحالي -->
+    <div class="record-indicator" id="recordIndicator">رقم تسلسلي [ - ]</div>
+
+    <!-- شبكة البيانات (DBGrid Simulator) -->
+    <div class="table-container" id="gridContainer">
+        <table class="admin-table" id="adminTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">ر.م</th>
+                    <th style="width: 150px;">رقم الطالب</th>
+                    <th style="width: 350px; text-align: right;">اسم الطالب</th>
+                    <th style="width: 100px;">أعمال</th>
+                    <th style="width: 100px;">جزئي</th>
+                    <th style="width: 100px;">نهائي</th>
+                    <th style="width: 150px;">المجموع</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody">
+                <!-- Data here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- أزرار التنقل بالترتيب المطلوب من اليمين لليسار -->
+    <div class="db-navigator">
+        <button onclick="goFirst()">السجل الأول</button>
+        <button onclick="goNext()">السجل التالي</button>
+        <button onclick="goPrev()">السجل السابق</button>
+        <button onclick="goLast()">السجل الأخير</button>
+        <button class="btn-show-detail" onclick="showStudentDetails()">عرض 👁️</button>
+    </div>
+
+    <!-- الفلترة الحية (Live Search) -->
+    <div class="search-wrapper">
+        <div class="input-group">
+            <input type="text" id="searchAdminName" placeholder="🔍 بحث بالاسم (تزايدي)..." oninput="filterAdminTable('name')" style="direction: rtl !important;">
+            <button class="clear-btn" onclick="clearSearch('name')" title="مسح الاسم">✖</button>
+        </div>
+        <div class="input-group">
+            <input type="text" id="searchAdminId" placeholder="🔍 بحث برقم الطالب..." oninput="filterAdminTable('id')" style="direction: ltr !important;">
+            <button class="clear-btn" onclick="clearSearch('id')" title="مسح الرقم">✖</button>
+        </div>
+    </div>
+
+    <button class="btn-exit" style="background: #dc3545; padding: 12px; width: 100%; border-radius: 8px; color: white; border: none; font-weight: bold; font-size: 16px; cursor: pointer;" onclick="exitAdmin()">إغلاق والعودة للرئيسية</button>
+  </div>
+
   <script>
     const mySheetLink = "https://docs.google.com/spreadsheets/d/1r5e80G1SY01WDehQ5Ao-2Jr21Le71mb-yxuDCVPua2k/edit?usp=drivesdk"; 
+    
+    let adminDataList = []; 
+    let currentFilteredData = []; 
+    let currentSelectedIndex = -1; 
+    let lastFocusElement = null;
 
-    // دوال النوافذ المنبثقة
-    function openHelp() {
-        document.getElementById('helpModal').style.display = 'flex';
-    }
-
-    function closeHelp() {
-        document.getElementById('helpModal').style.display = 'none';
-    }
-
-    // دالة عرض رسائل الخطأ المخصصة (البديلة لـ alert)
-    function showCustomAlert(msg) {
+    // دوال النوافذ الأساسية 
+    function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
+    function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
+    function showCustomAlert(msg, returnFocusId) {
+        lastFocusElement = returnFocusId;
         document.getElementById('customAlertMessage').innerText = msg;
         document.getElementById('customAlertModal').style.display = 'flex';
     }
-
     function closeCustomAlert() {
         document.getElementById('customAlertModal').style.display = 'none';
-        document.getElementById('studentId').focus();
+        if(lastFocusElement) document.getElementById(lastFocusElement).focus();
     }
 
-    function resetSearch() {
-        document.getElementById('result').style.display = 'none';
-        document.getElementById('searchBtn').disabled = false;
-        let inputField = document.getElementById('studentId');
-        inputField.value = '';
-        inputField.focus();
+    // دوال تسجيل دخول المسؤول
+    function openAdminLogin() {
+        document.getElementById('adminLoginModal').style.display = 'flex';
+        document.getElementById('adminPassword').value = '';
+        setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+    }
+    function closeAdminLogin() { document.getElementById('adminLoginModal').style.display = 'none'; }
+    
+    function verifyAdmin() {
+        let pass = document.getElementById('adminPassword').value;
+        if(pass === 'ahmed@dmin') {
+            closeAdminLogin();
+            document.getElementById('main-card').style.display = 'none';
+            document.getElementById('admin-card').style.display = 'block';
+            if(adminDataList.length === 0) fetchAdminData();
+        } else {
+            showCustomAlert('كلمة المرور غير صحيحة، يرجى المحاولة من جديد.', 'adminPassword');
+            document.getElementById('adminPassword').value = '';
+        }
+    }
+    function exitAdmin() {
+        document.getElementById('admin-card').style.display = 'none';
+        document.getElementById('main-card').style.display = 'block';
+        clearSearch('name');
+        clearSearch('id');
     }
 
+    // دوّال الطالب
     function validateInput(inputField) {
         let val = inputField.value;
         if (val.length === 0) return;
-
         if (val.charAt(0) === '0' || val.charAt(0) === '٠') {
-            inputField.value = '';
-            showCustomAlert("لا يوجد رقم دراسي يبدأ بصفر.\nأعد الإدخال من جديد.");
-            return;
+            inputField.value = ''; showCustomAlert("لا يوجد رقم دراسي يبدأ بصفر.\nأعد الإدخال من جديد.", 'studentId'); return;
         }
-
         let invalidCharsRegex = /[^0-9٠-٩]/;
         if (invalidCharsRegex.test(val)) {
-            inputField.value = '';
-            showCustomAlert("هذه الخانة خاصة بإدخال الأرقام فقط.\nأعد الإدخال من جديد.");
-            return;
+            inputField.value = ''; showCustomAlert("هذه الخانة خاصة بإدخال الأرقام فقط.\nأعد الإدخال من جديد.", 'studentId'); return;
         }
     }
-
-    function toEnglishDigits(str) {
-        return str.replace(/[٠-٩]/g, function(d) {
-            return d.charCodeAt(0) - 1632;
-        });
+    function toEnglishDigits(str) { return str.replace(/[٠-٩]/g, function(d) { return d.charCodeAt(0) - 1632; }); }
+    function resetSearch() {
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('searchBtn').disabled = false;
+        let inputField = document.getElementById('studentId'); inputField.value = ''; inputField.focus();
     }
-
-    window.handleGoogleData = function(data) {
+    window.handleStudentData = function(data) {
         document.getElementById('loading').style.display = 'none';
-        
-        let originalInput = document.getElementById('studentId').value.trim();
-        let idInput = toEnglishDigits(originalInput);
-        
-        let rows = data.table.rows;
-        let found = false;
+        let idInput = toEnglishDigits(document.getElementById('studentId').value.trim());
+        let rows = data.table.rows; let found = false;
 
         for(let i = 0; i < rows.length; i++) {
-          let row = rows[i].c;
-          
-          if(row && row[0] && row[0].v != null) {
-            let rowId = toEnglishDigits(row[0].v.toString().trim());
+            let row = rows[i].c;
+            if(row && row[0] && row[0].v != null) {
+                let rowId = toEnglishDigits(row[0].v.toString().trim());
+                if(rowId === idInput) {
+                    found = true;
+                    document.getElementById('searchBtn').disabled = true;
+                    document.getElementById('res_name').innerText = row[1] && row[1].v != null ? row[1].v : "غير مسجل";
+                    
+                    let p_val = row[2] && row[2].v != null && row[2].v !== "" ? Number(row[2].v) : null;
+                    let a_val = row[3] && row[3].v != null && row[3].v !== "" ? Number(row[3].v) : null;
+                    let f_val = row[4] && row[4].v != null && row[4].v !== "" ? Number(row[4].v) : null;
+                    let currentTotal = (p_val||0) + (a_val||0) + (f_val||0);
 
-            if(rowId === idInput) {
-                found = true;
-                
-                document.getElementById('searchBtn').disabled = true;
+                    updateStudentRow('row_p', 'res_p', p_val!==null, p_val, a_val!==null, f_val!==null, false);
+                    updateStudentRow('row_a', 'res_a', a_val!==null, a_val, p_val!==null, f_val!==null, true); 
+                    updateStudentRow('row_f', 'res_f', f_val!==null, f_val, p_val!==null, a_val!==null, false);
 
-                let name = row[1] && row[1].v != null ? row[1].v : "غير مسجل";
-                document.getElementById('res_name').innerText = name;
-
-                let hasPartial = row[2] && row[2].v != null && row[2].v !== "";
-                let hasActivities = row[3] && row[3].v != null && row[3].v !== "";
-                let hasFinal = row[4] && row[4].v != null && row[4].v !== "";
-
-                let p_val = hasPartial ? Number(row[2].v) : 0;
-                let a_val = hasActivities ? Number(row[3].v) : 0;
-                let f_val = hasFinal ? Number(row[4].v) : 0;
-                let currentTotal = p_val + a_val + f_val;
-
-                let rowP = document.getElementById('row_p');
-                let resP = document.getElementById('res_p');
-                if (hasPartial) {
-                    rowP.classList.remove('col-layout');
-                    resP.innerText = row[2].v;
-                    resP.style.color = '#333';
-                    resP.style.background = 'transparent';
-                } else {
-                    rowP.classList.add('col-layout');
-                    if (hasActivities || hasFinal) {
-                        resP.innerText = "لم ترصد";
-                    } else {
-                        resP.innerText = "لم ترصد بعد";
-                    }
+                    let totalContainer = document.getElementById('total_row_container');
+                    let msgBox = document.getElementById('res_msg');
+                    if (p_val!==null || a_val!==null || f_val!==null) {
+                        document.getElementById('res_t').innerText = currentTotal;
+                        totalContainer.style.display = 'flex';
+                        if (f_val!==null) {
+                            msgBox.style.display = 'block';
+                            if (currentTotal >= 50) { msgBox.className = "message success"; msgBox.innerText = "مبروك النجاح."; } 
+                            else { msgBox.className = "message fail"; msgBox.innerText = "لم توفق / ي هذه المرة، نرجو لك التوفيق في المرات القادمة."; }
+                        } else { msgBox.style.display = 'none'; }
+                    } else { totalContainer.style.display = 'none'; msgBox.style.display = 'none'; }
+                    document.getElementById('result').style.display = 'block'; break;
                 }
-
-                let rowA = document.getElementById('row_a');
-                let resA = document.getElementById('res_a');
-                if (hasActivities) {
-                    rowA.classList.remove('col-layout');
-                    resA.innerText = row[3].v;
-                    resA.style.color = '#333';
-                    resA.style.background = 'transparent';
-                } else {
-                    rowA.classList.add('col-layout');
-                    if (hasFinal) {
-                        resA.innerText = "لم ترصد";
-                    } else {
-                        resA.innerText = "لم ترصد بعد";
-                    }
-                }
-
-                let rowF = document.getElementById('row_f');
-                let resF = document.getElementById('res_f');
-                if (hasFinal) {
-                    rowF.classList.remove('col-layout');
-                    resF.innerText = row[4].v;
-                    resF.style.color = '#333';
-                    resF.style.background = 'transparent';
-                } else {
-                    rowF.classList.add('col-layout');
-                    if (!hasPartial && hasActivities) {
-                        resF.innerText = "لم ترصد";
-                    } else {
-                        resF.innerText = "لم ترصد بعد";
-                    }
-                }
-
-                let totalContainer = document.getElementById('total_row_container');
-                let msgBox = document.getElementById('res_msg');
-
-                if (hasPartial || hasActivities || hasFinal) {
-                    document.getElementById('res_t').innerText = currentTotal;
-                    totalContainer.style.display = 'flex';
-
-                    if (hasFinal) {
-                        msgBox.style.display = 'block';
-                        if (currentTotal >= 50) {
-                            msgBox.className = "message success";
-                            msgBox.innerText = "مبروك النجاح.";
-                        } else {
-                            msgBox.className = "message fail";
-                            msgBox.innerText = "لم توفق / ي هذه المرة، نرجو لك التوفيق في المرات القادمة.";
-                        }
-                    } else {
-                        msgBox.style.display = 'none';
-                    }
-                } else {
-                    totalContainer.style.display = 'none';
-                    msgBox.style.display = 'none';
-                }
-
-                document.getElementById('result').style.display = 'block';
-                break;
             }
-          }
         }
+        if(!found) { showCustomAlert('❌ الرقم غير موجود بالملف!', 'studentId'); document.getElementById('searchBtn').disabled = false; }
+    };
+    function updateStudentRow(rowId, resId, hasVal, val, cond1, cond2, isActs) {
+        let rowElem = document.getElementById(rowId); let resElem = document.getElementById(resId);
+        if (hasVal) { rowElem.classList.remove('col-layout'); resElem.innerText = val; resElem.style.color = '#333'; resElem.style.background = 'transparent'; } 
+        else { rowElem.classList.add('col-layout'); resElem.innerText = (isActs ? cond2 : (cond1 || cond2)) ? "لم ترصد" : "لم ترصد بعد"; }
+    }
+    function searchStudentInSheets() {
+        let idInput = document.getElementById('studentId').value;
+        if(!idInput) { showCustomAlert("الرجاء إدخال رقم الطالب!", 'studentId'); return; }
+        document.getElementById('loading').style.display = 'block'; document.getElementById('result').style.display = 'none';
+        let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
+        let oldScript = document.getElementById('google-jsonp-student'); if(oldScript) oldScript.remove();
+        let script = document.createElement('script'); script.id = 'google-jsonp-student';
+        script.src = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json;responseHandler:handleStudentData`;
+        script.onerror = function() { document.getElementById('loading').style.display = 'none'; showCustomAlert("فشل الاتصال بالإنترنت.", 'studentId'); document.getElementById('searchBtn').disabled = false; };
+        document.body.appendChild(script);
+    }
 
-        if(!found) {
-          showCustomAlert('❌ الرقم (' + originalInput + ') غير موجود بالملف!\nتأكد أن الرقم مكتوب بشكل صحيح في جدول الدرجات.');
-          document.getElementById('searchBtn').disabled = false;
+    // ==========================================
+    // قسم المسؤول: عرض التفاصيل والملاحة الحية المزدوجة
+    // ==========================================
+    window.handleAdminData = function(data) {
+        document.getElementById('adminLoading').style.display = 'none';
+        let rows = data.table.rows;
+        adminDataList = []; 
+        let rmCounter = 1;
+
+        for(let i = 0; i < rows.length; i++) {
+            let row = rows[i].c;
+            if(row && row[0] && row[0].v != null) {
+                let idStr = row[0].v.toString().trim();
+                if(isNaN(parseInt(idStr))) continue; 
+                
+                let actsVal = row[3] && row[3].v != null && row[3].v !== "" ? Number(row[3].v) : null;
+                let partVal = row[2] && row[2].v != null && row[2].v !== "" ? Number(row[2].v) : null;
+                let finalVal = row[4] && row[4].v != null && row[4].v !== "" ? Number(row[4].v) : null;
+                let total = (actsVal || 0) + (partVal || 0) + (finalVal || 0);
+                if(actsVal === null && partVal === null && finalVal === null) total = null;
+
+                adminDataList.push({
+                    rm: rmCounter++,
+                    id: idStr,
+                    name: row[1] && row[1].v != null ? row[1].v.toString() : "غير مسجل",
+                    acts: actsVal, part: partVal, final: finalVal, total: total
+                });
+            }
         }
+        currentFilteredData = adminDataList;
+        renderAdminTable();
     };
 
-    function searchInSheets() {
-      let idInput = document.getElementById('studentId').value;
-      if(!idInput) { showCustomAlert("الرجاء إدخال رقم الطالب!"); return; }
+    function fetchAdminData() {
+        document.getElementById('adminLoading').style.display = 'block';
+        let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
+        let oldScript = document.getElementById('google-jsonp-admin'); if(oldScript) oldScript.remove();
+        let script = document.createElement('script'); script.id = 'google-jsonp-admin';
+        script.src = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json;responseHandler:handleAdminData`;
+        script.onerror = function() { document.getElementById('adminLoading').style.display = 'none'; showCustomAlert("فشل تحميل السجلات."); };
+        document.body.appendChild(script);
+    }
 
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('result').style.display = 'none';
+    function renderAdminTable() {
+        let tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = '';
 
-      let sheetID = mySheetLink.split("/d/")[1].split("/")[0];
+        if(currentFilteredData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px; color: #d32f2f;">لا توجد نتائج مطابقة للبحث</td></tr>';
+            document.getElementById('recordIndicator').innerText = "رقم تسلسلي [ - ]";
+            currentSelectedIndex = -1;
+            return;
+        }
 
-      let oldScript = document.getElementById('google-jsonp');
-      if(oldScript) oldScript.remove();
+        let html = '';
+        currentFilteredData.forEach((st, index) => {
+            let actsStr = st.acts !== null ? st.acts : '<span class="td-empty">-</span>';
+            let partStr = st.part !== null ? st.part : '<span class="td-empty">-</span>';
+            let finalStr = st.final !== null ? st.final : '<span class="td-empty">-</span>';
+            let totalStr = st.total !== null ? `<strong>${st.total}</strong>` : '<span class="td-empty">-</span>';
 
-      let script = document.createElement('script');
-      script.id = 'google-jsonp';
-      script.src = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json;responseHandler:handleGoogleData`;
-      
-      script.onerror = function() {
-        document.getElementById('loading').style.display = 'none';
-        showCustomAlert("فشل الاتصال!\nتأكد أن هاتفك متصل بالإنترنت.");
-        document.getElementById('searchBtn').disabled = false;
-      };
+            html += `
+                <tr id="row-${index}" onclick="selectRow(${index})" ondblclick="showStudentDetails()">
+                    <td>${st.rm}</td>
+                    <td>${st.id}</td>
+                    <td style="text-align: right;">${st.name}</td>
+                    <td>${actsStr}</td>
+                    <td>${partStr}</td>
+                    <td>${finalStr}</td>
+                    <td>${totalStr}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+        selectRow(0);
+    }
 
-      document.body.appendChild(script);
+    function selectRow(index) {
+        if (index < 0 || index >= currentFilteredData.length) return;
+        
+        if (currentSelectedIndex !== -1) {
+            let oldRow = document.getElementById('row-' + currentSelectedIndex);
+            if (oldRow) oldRow.classList.remove('selected-row');
+        }
+
+        currentSelectedIndex = index;
+        let newRow = document.getElementById('row-' + currentSelectedIndex);
+        if (newRow) {
+            newRow.classList.add('selected-row');
+            
+            let container = document.getElementById('gridContainer');
+            let header = document.querySelector('#adminTable th');
+            let headerHeight = header ? header.offsetHeight : 45; 
+            
+            let rowTop = newRow.offsetTop;
+            let rowBottom = rowTop + newRow.offsetHeight;
+            
+            if (index === 0) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (rowTop < container.scrollTop + headerHeight) {
+                container.scrollTo({ top: rowTop - headerHeight, behavior: 'smooth' });
+            } else if (rowBottom > container.scrollTop + container.clientHeight) {
+                container.scrollTo({ top: rowBottom - container.clientHeight, behavior: 'smooth' });
+            }
+        }
+
+        let currentRecordRM = currentFilteredData[currentSelectedIndex].rm;
+        document.getElementById('recordIndicator').innerText = "رقم تسلسلي [ " + currentRecordRM + " ]";
+    }
+
+    // عرض بطاقة الطالب للمسؤول وتحديثها عند التنقل
+    function showStudentDetails() {
+        if (currentSelectedIndex === -1 || currentFilteredData.length === 0) return;
+        let st = currentFilteredData[currentSelectedIndex];
+        
+        let actsStr = st.acts !== null ? st.acts : 'لم ترصد بعد';
+        let partStr = st.part !== null ? st.part : 'لم ترصد بعد';
+        let finalStr = st.final !== null ? st.final : 'لم ترصد بعد';
+        let totalStr = st.total !== null ? st.total : 'غير مكتمل';
+
+        let html = `
+            <div style="text-align: center; font-size: 13px; color: #666; margin-bottom: 10px;">
+                ( السجل ${currentSelectedIndex + 1} من ${currentFilteredData.length} )
+            </div>
+            <div style="margin-bottom: 10px;"><strong>الرقم التسلسلي:</strong> <span style="color:#005088;">${st.rm}</span></div>
+            <div style="margin-bottom: 10px;"><strong>رقم الطالب:</strong> <span style="color:#005088;">${st.id}</span></div>
+            <div style="margin-bottom: 10px; background: #eef2f3; padding: 10px; border-radius: 5px;"><strong>اسم الطالب:</strong><br> <span style="color:#005088; font-weight: bold; font-size: 18px;">${st.name}</span></div>
+            <div style="margin-bottom: 10px;"><strong>درجة الأعمال (10):</strong> <span style="color:#d32f2f;">${actsStr}</span></div>
+            <div style="margin-bottom: 10px;"><strong>درجة الجزئي (30):</strong> <span style="color:#d32f2f;">${partStr}</span></div>
+            <div style="margin-bottom: 10px;"><strong>الامتحان النهائي (60):</strong> <span style="color:#d32f2f;">${finalStr}</span></div>
+            <div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; font-size: 18px;"><strong>المجموع الكلي:</strong> <span style="color:#28a745; font-weight: bold;">${totalStr}</span></div>
+        `;
+        document.getElementById('detailContent').innerHTML = html;
+        document.getElementById('studentDetailModal').style.display = 'flex';
+    }
+
+    function closeStudentDetails() {
+        document.getElementById('studentDetailModal').style.display = 'none';
+    }
+
+    // أزرار الملاحة الرئيسية
+    function goFirst() { selectRow(0); }
+    function goLast() { selectRow(currentFilteredData.length - 1); }
+    function goNext() { if (currentSelectedIndex < currentFilteredData.length - 1) selectRow(currentSelectedIndex + 1); }
+    function goPrev() { if (currentSelectedIndex > 0) selectRow(currentSelectedIndex - 1); }
+
+    // أزرار الملاحة من داخل النافذة
+    function navigateInModal(action) {
+        if (action === 'first') goFirst();
+        else if (action === 'prev') goPrev();
+        else if (action === 'next') goNext();
+        else if (action === 'last') goLast();
+        
+        showStudentDetails();
+    }
+
+    function clearSearch(source) {
+        let nameInput = document.getElementById('searchAdminName');
+        let idInput = document.getElementById('searchAdminId');
+        
+        if (source === 'name') nameInput.value = '';
+        else if (source === 'id') idInput.value = '';
+        
+        filterAdminTable(source);
+    }
+
+    function filterAdminTable(source) {
+        if(adminDataList.length === 0) return; 
+
+        let nameInput = document.getElementById('searchAdminName');
+        let idInput = document.getElementById('searchAdminId');
+        
+        if (source === 'name') {
+            if (nameInput.value.trim() !== '') {
+                idInput.value = ''; 
+                idInput.disabled = true;
+            } else {
+                idInput.disabled = false;
+            }
+        } else if (source === 'id') {
+            if (idInput.value.trim() !== '') {
+                nameInput.value = '';
+                nameInput.disabled = true;
+            } else {
+                nameInput.disabled = false;
+            }
+        }
+
+        let nameQuery = nameInput.value.trim().toLowerCase();
+        let idQuery = idInput.value.trim();
+
+        currentFilteredData = adminDataList.filter(st => {
+            let matchName = true;
+            let matchId = true;
+            if (nameQuery !== "") matchName = st.name.toLowerCase().includes(nameQuery);
+            if (idQuery !== "") matchId = st.id.includes(idQuery);
+            return matchName && matchId;
+        });
+
+        renderAdminTable(); 
+
+        setTimeout(() => {
+            let firstRow = document.getElementById('row-0');
+            if (firstRow) {
+                // توجيه العرض دائماً لبداية الجدول (أقصى اليمين) لضمان ظهور الرقم والاسم بوضوح تام
+                firstRow.cells[0].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+            }
+        }, 50);
     }
   </script>
 </body>
 </html>
+
